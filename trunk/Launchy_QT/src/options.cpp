@@ -284,7 +284,8 @@ void OptionsDialog::setVisible(bool visible)
 	if (visible)
 	{
 		connect(skinList, SIGNAL(currentTextChanged(const QString)), this, SLOT(skinChanged(const QString)));
-		skinChanged(skinList->currentItem()->text());
+		QListWidgetItem *item = skinList->currentItem();
+		if (item) skinChanged(item->text());
 	}
 }
 
