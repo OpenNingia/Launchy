@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "catalog.h"
 #include <QVector>
+#include <QMap>
 #include <QMutex> // os x
 
 // These classes do not pertain to plugins
@@ -32,7 +33,7 @@ public:
 	Catalog() : timestamp(0) {}
 	virtual ~Catalog() {}
 	bool load(const QString& filename);
-	bool save(const QString& filename);
+    bool save(const QString& filename);
 	void incrementTimestamp() { ++timestamp; }
 	void searchCatalogs(const QString&, QList<CatItem>&);
 	void promoteRecentlyUsedItems(const QString& text, QList<CatItem> & list);
@@ -42,6 +43,7 @@ public:
 	virtual void addItem(const CatItem& item) = 0;
     virtual void addNewItem(const CatItem& item) = 0;
 	virtual void purgeOldItems() = 0;
+    virtual bool saveJson(const QString& filename) = 0;
 
 	virtual void incrementUsage(const CatItem& item) = 0;
 	virtual void demoteItem(const CatItem& item) = 0;
@@ -50,7 +52,7 @@ public:
 	static QString decorateText(const QString& text, const QString& match, bool outputRichText = false);
 
 protected:	
-	virtual const CatItem& getItem(int) = 0;
+    virtual const CatItem& getItem(int i) = 0;
 	virtual QList<CatItem*> search(const QString&) = 0;
 
 	int timestamp;
@@ -97,14 +99,16 @@ public:
 	virtual void addItem(const CatItem& item);
     virtual void addNewItem(const CatItem& item);
 	virtual void purgeOldItems();
+    virtual bool saveJson(const QString& filename);
 
 	virtual void incrementUsage(const CatItem& item);
 	virtual void demoteItem(const CatItem& item);
 
 protected:
-	virtual const CatItem& getItem(int i) { return catalogItems[i]; }
+    virtual const CatItem& getItem(int i) { return catalogItems[catalogItems.uniqueKeys()[i]]; }
 	virtual QList<CatItem*> search(const QString&);
 
 private:
-	QVector<CatalogItem> catalogItems;
+    //QVector<CatalogItem> catalogItems;
+    QMap<int, CatalogItem> catalogItems;
 };
