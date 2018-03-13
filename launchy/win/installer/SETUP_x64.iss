@@ -63,10 +63,11 @@ Source: "{#PWD}\release\bearer\*.dll"; DestDir: "{app}\bearer"; Flags: ignorever
 Source: "{#PWD}\release\iconengines\*.dll"; DestDir: "{app}\iconengines"; Flags: ignoreversion
 Source: "{#PWD}\release\imageformats\*.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
 Source: "{#PWD}\release\platforms\*.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
+Source: "{#PWD}\release\styles\*.dll"; DestDir: "{app}\styles"; Flags: ignoreversion
 Source: "{#PWD}\release\translations\*.qm"; DestDir: "{app}\tr"; Flags: ignoreversion
 
 ; redist
-Source: {#PWD}\release\vcredist*.exe; DestDir: {tmp}; Flags: deleteafterinstall
+Source: {#PWD}\release\VC_redist.x64.exe; DestDir: {tmp}; Flags: deleteafterinstall
 
 ; Translations
 Source: {#PWD}\translations\launchy_es.qm; DestDir: {app}\tr\; Flags: ignoreversion
@@ -124,7 +125,7 @@ Name: {userdesktop}\{#MyAppName}; Filename: {app}\{#MyAppExeName}; Parameters: /
 Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}; Parameters: /show; Filename: {app}\{#MyAppExeName}; WorkingDir: {app}; Tasks: quicklaunchicon
 
 [Run]
-Filename: {tmp}\vcredist_x64.exe; Parameters: "/q /passive /norestart /Q:a /c:""msiexec /q /i vcredist.msi"" "; StatusMsg: Installing VC++ Redistributables...
+Filename: {tmp}\VC_redist.x64.exe; Parameters: "/q /passive /norestart /Q:a /c:""msiexec /q /i vcredist.msi"" "; StatusMsg: Installing VC++ Redistributables...
 Filename: {app}\{#MyAppExeName}; Parameters: /show; Description: {cm:LaunchProgram,{#MyAppName}}; Flags: nowait postinstall skipifsilent runasoriginaluser
 
 [UninstallDelete]
