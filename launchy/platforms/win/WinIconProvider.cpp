@@ -226,6 +226,119 @@ bool WinIconProvider::addIconFromImageList(int imageListIndex, int iconIndex, QI
 }
 
 
+/*
+ * anonymous namespace contains helper functions from gui/image/qpixmap_win.cpp used by fixed_qt_pixmapFromWinHBitmap
+ */
+namespace{
+    /*
+     * from gui/image/qpixmap_win.cpp
+     */
+    static inline void initBitMapInfoHeader(int width, int height, bool topToBottom, BITMAPINFOHEADER *bih)
+    {
+        memset(bih, 0, sizeof(BITMAPINFOHEADER));
+        bih->biSize        = sizeof(BITMAPINFOHEADER);
+        bih->biWidth       = width;
+        bih->biHeight      = topToBottom ? -height : height;
+        bih->biPlanes      = 1;
+        bih->biBitCount    = 32;
+        bih->biCompression = BI_RGB;
+        bih->biSizeImage   = width * height * 4;
+    }
+
+    /*
+     * from gui/image/qpixmap_win.cpp
+     */
+    static inline void initBitMapInfo(int width, int height, bool topToBottom, BITMAPINFO *bmi)
+    {
+        initBitMapInfoHeader(width, height, topToBottom, &bmi->bmiHeader);
+        memset(bmi->bmiColors, 0, sizeof(RGBQUAD));
+    }
+
+    /*
+     * from gui/image/qpixmap_win.cpp
+     */
+    static inline uchar *getDiBits(HDC hdc, HBITMAP bitmap, int width, int height, bool topToBottom = true)
+    {
+        BITMAPINFO bmi;
+        initBitMapInfo(width, height, topToBottom, &bmi);
+        uchar *result = new uchar[bmi.bmiHeader.biSizeImage];
+        if (!GetDIBits(hdc, bitmap, 0, height, result, &bmi, DIB_RGB_COLORS)) {
+            delete [] result;
+            qErrnoWarning("%s: GetDIBits() failed to get bitmap bits.", __FUNCTION__);
+            return 0;
+        }
+        return result;
+    }
+
+    /*
+     * from gui/image/qpixmap_win.cpp
+     */
+    static inline void copyImageDataCreateAlpha(const uchar *data, QImage *target)
+    {
+        const uint mask = target->format() == QImage::Format_RGB32 ? 0xff000000 : 0;
+        const int height = target->height();
+        const int width = target->width();
+        const int bytesPerLine = width * int(sizeof(QRgb));
+        for (int y = 0; y < height; ++y) {
+            QRgb *dest = reinterpret_cast<QRgb *>(target->scanLine(y));
+            const QRgb *src = reinterpret_cast<const QRgb *>(data + y * bytesPerLine);
+            for (int x = 0; x < width; ++x) {
+                const uint pixel = src[x];
+                if ((pixel & 0xff000000) == 0 && (pixel & 0x00ffffff) != 0)
+                    dest[x] = pixel | 0xff000000;
+                else
+                    dest[x] = pixel | mask;
+            }
+        }
+    }
+}
+
+/*
+ * fixed version of qt_pixmapFromWinHBitmap
+ */
+QPixmap fixed_qt_pixmapFromWinHBitmap(HBITMAP bitmap, int hbitmapformat = 0){
+    // Verify size
+    BITMAP bitmap_info;
+    memset(&bitmap_info, 0, sizeof(BITMAP));
+
+    const int res = GetObject(bitmap, sizeof(BITMAP), &bitmap_info);
+    if (!res) {
+        qErrnoWarning("QPixmap::fromWinHBITMAP(), failed to get bitmap info");
+        return QPixmap();
+    }
+    const int w = bitmap_info.bmWidth;
+    const int h = bitmap_info.bmHeight;
+
+    // Get bitmap bits
+    HDC display_dc = GetDC(0);
+    QScopedArrayPointer<uchar> data(getDiBits(display_dc, bitmap, w, h, true));
+    if (data.isNull()) {
+        ReleaseDC(0, display_dc);
+        return QPixmap();
+    }
+    /********
+     * BEGIN Changed Code
+     ********/
+    const QImage::Format imageFormat = hbitmapformat == QtWin::HBitmapNoAlpha ?
+                QImage::Format_RGB32 : hbitmapformat == QtWin::HBitmapPremultipliedAlpha ?
+                    QImage::Format_ARGB32_Premultiplied : QImage::Format_ARGB32;
+    /********
+     * END Changed Code
+     ********/
+
+    // Create image and copy data into image.
+    QImage image(w, h, imageFormat);
+    if (image.isNull()) { // failed to alloc?
+        ReleaseDC(0, display_dc);
+        qWarning("%s, failed create image of %dx%d", __FUNCTION__, w, h);
+        return QPixmap();
+    }
+    copyImageDataCreateAlpha(data.data(), &image);
+    ReleaseDC(0, display_dc);
+    return QPixmap::fromImage(image);
+}
+
+
 // On Vista or 7 we could use SHIL_JUMBO to get a 256x256 icon,
 // but we'll use SHCreateItemFromParsingName as it'll give an identical
 // icon to the one shown in explorer and it scales automatically.
@@ -249,17 +362,10 @@ bool WinIconProvider::addIconFromShellFactory(QString filePath, QIcon& icon) con
 				if (hr == S_OK)
 				{
 #if QT_VERSION >= 0x050000
-                    QPixmap iconPixmap = QtWin::fromHBITMAP(iconBitmap, QtWin::HBitmapPremultipliedAlpha);
+                    QPixmap iconPixmap = fixed_qt_pixmapFromWinHBitmap(iconBitmap, QtWin::HBitmapAlpha);
 #else
                     QPixmap iconPixmap = QPixmap::fromWinHBITMAP(iconBitmap, QPixmap::PremultipliedAlpha);
 #endif
-					// Compose proper image with icon alpha channel
-					QImage iconImage = QImage(iconPixmap.size(), QImage::Format_ARGB32);
-					QPainter painter(&iconImage);
-					painter.setCompositionMode(QPainter::CompositionMode_Source);
-					painter.drawPixmap(0, 0, iconPixmap);
-					iconPixmap = QPixmap::fromImage(iconImage);
-
 					icon.addPixmap(iconPixmap);
 					DeleteObject(iconBitmap);
 				}
