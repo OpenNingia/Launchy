@@ -27,26 +27,56 @@
         <source>Controly - Index Control Panel applications</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../plugins/calcy/dlg.ui" line="14"/>
+        <source>Calcy - Simple Calculator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../plugins/calcy/dlg.ui" line="29"/>
+        <source>Rounding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../plugins/calcy/dlg.ui" line="36"/>
+        <source> decimal places</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../plugins/calcy/dlg.ui" line="46"/>
+        <source>Show digit grouping symbol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../plugins/calcy/dlg.ui" line="53"/>
+        <source>Copy result to clipboard when pressing Enter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../plugins/calcy/dlg.ui" line="60"/>
+        <source>Use &quot;,&quot; instead of &quot;.&quot; as the decimal separator</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LaunchyWidget</name>
     <message>
-        <location filename="../src/main.cpp" line="180"/>
+        <location filename="../src/main.cpp" line="159"/>
         <source>Launchy Options</source>
         <translation>Launchy 选项</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="186"/>
+        <location filename="../src/main.cpp" line="165"/>
         <source>Close Launchy</source>
         <translation>关闭 Launchy</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="260"/>
+        <location filename="../src/main.cpp" line="242"/>
         <source>The hotkey %1 is already in use, please select another.</source>
         <translation>热键 %1 已经被占用了,请选择另外一个热键.</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="399"/>
+        <location filename="../src/main.cpp" line="381"/>
         <source>Launchy (press %1 to activate)</source>
         <translation>Launchy (按 %1 激活)</translation>
     </message>
@@ -59,23 +89,23 @@ You can download it at 						   &lt;qt&gt;&lt;a href=&quot;http://www.launchy.ne
 请到这里下载： 				   &lt;qt&gt;&lt;a href=&quot;http://www.launchy.net/&quot;&gt;http://www.launchy.net&lt;/a&gt;&lt;/qt&gt;</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="1663"/>
+        <location filename="../src/main.cpp" line="1655"/>
         <source>Show Launchy</source>
         <translation>显示Launchy</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="1666"/>
+        <location filename="../src/main.cpp" line="1658"/>
         <source>Rebuild catalog</source>
         <translation>重建索引数据</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="1671"/>
+        <location filename="../src/main.cpp" line="1663"/>
         <source>Reload skin</source>
         <translation>重新载入皮肤</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="151"/>
-        <location filename="../src/main.cpp" line="260"/>
+        <location filename="../src/main.cpp" line="130"/>
+        <location filename="../src/main.cpp" line="242"/>
         <source>Launchy</source>
         <translation type="unfinished"></translation>
     </message>
@@ -100,12 +130,12 @@ You can download it at 				   &lt;qt&gt;&lt;a href=&quot;http://www.launchy.net/
         <translation type="obsolete">重建索引数据</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="1676"/>
+        <location filename="../src/main.cpp" line="1668"/>
         <source>Options</source>
         <translation>选项</translation>
     </message>
     <message>
-        <location filename="../src/main.cpp" line="1681"/>
+        <location filename="../src/main.cpp" line="1673"/>
         <source>Exit</source>
         <translation>退出</translation>
     </message>
@@ -384,7 +414,7 @@ You can download it at 				   &lt;qt&gt;&lt;a href=&quot;http://www.launchy.net/
         <translation>插件选项</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/options.cpp" line="589"/>
+        <location filename="../src/options.cpp" line="594"/>
         <source>Index has %n items</source>
         <translation>
             <numerusform></numerusform>

@@ -10,6 +10,9 @@ VPATH += ../../src/
 
 INCLUDEPATH += ../../src/
 INCLUDEPATH += $$(BOOST_DIR)
+
+TR_EXCLUDE += $$(BOOST_DIR)/*
+
 PRECOMPILED_HEADER = precompiled.h
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += gui widgets

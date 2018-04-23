@@ -48,8 +48,8 @@ struct PluginInfo
 	}
 	~PluginInfo()
 	{
-		QPluginLoader loader(path);
-		loader.unload();
+        //QPluginLoader loader(path);
+        //loader.unload();
 	}
 
 	bool isValid() const
@@ -58,6 +58,14 @@ struct PluginInfo
 	}
 
 	int sendMessage(int msgId, void* wParam = NULL, void* lParam = NULL);
+
+    bool unload() {
+        if ( !path.isNull() && !path.isEmpty() ) {
+            QPluginLoader loader(path);
+            return loader.unload();
+        }
+        return false;
+    }
 };
 
 

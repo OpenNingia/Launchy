@@ -18,7 +18,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>350</width>
+     <width>320</width>
      <height>91</height>
     </rect>
    </property>
@@ -40,14 +40,14 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0">
+    <item row="1" column="0" colspan="2">
      <widget class="QCheckBox" name="chkDigitGrouping">
       <property name="text">
        <string>Show digit grouping symbol</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="2" column="0" colspan="2">
      <widget class="QCheckBox" name="chkCopyToClipboard">
       <property name="text">
        <string>Copy result to clipboard when pressing Enter</string>

@@ -60,7 +60,6 @@ public:
 	CatalogBuilder(PluginHandler* plugs);
 	Catalog* getCatalog() const { return catalog; }
 	int getProgress() const { return progress; }
-    //int isRunning() const { return progress < CATALOG_PROGRESS_MAX; }
 	bool progressStep(int newStep);
     void run();
 

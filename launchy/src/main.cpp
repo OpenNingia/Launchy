@@ -1200,16 +1200,19 @@ void LaunchyWidget::onHotkey()
 
 void LaunchyWidget::closeEvent(QCloseEvent* event)
 {    
-    qDebug() << "Stopping builder thread";
-    gBuilder->stop();
     qDebug() << "Stopping fader timer";
     fader->stop();
     qDebug() << "Saving settings";
     saveSettings();
     qDebug() << "Accepting events";
     event->accept();
-    qDebug() << "Joining builder thread";
-    gBuilder->wait();
+    if ( gBuilder->isRunning() ) {
+        qDebug() << "Stopping builder thread";
+        gBuilder->stop();
+
+        qDebug() << "Joining builder thread";
+        gBuilder->wait();
+    }
     qDebug() << "Quitting QApplication";
     qApp->quit();
 }

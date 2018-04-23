@@ -21,6 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "catalog_types.h"
 #include "globals.h"
 
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
 
 // Load the catalog from the specified filename
 bool Catalog::load(const QString& filename)
@@ -64,9 +68,10 @@ bool Catalog::save(const QString& filename)
 
 	for (int i = 0; i < count(); i++)
 	{
-		CatItem item = getItem(i);
+        auto& item = getItem(i);
 		out << item;
 	}
+
 
 	// Compress and write the catalog to the specified file
 	QFile file(filename);
@@ -78,7 +83,6 @@ bool Catalog::save(const QString& filename)
 	file.write(qCompress(ba));
 	return true;
 }
-
 
 // Return true if the specified catalog item matches the specified string
 bool Catalog::matches(CatItem* item, const QString& match)
@@ -222,8 +226,8 @@ void SlowCatalog::addNewItem(const CatItem& item)
 {
     CatalogItem vitm(item, timestamp);
 
-    if ( !catalogItems.contains(vitm) )
-        catalogItems.push_back(vitm);
+    if ( !catalogItems.contains(vitm.hash) )
+        catalogItems.insert(vitm.hash, vitm);
 }
 
 void SlowCatalog::addItem(const CatItem& item)
@@ -237,24 +241,19 @@ void SlowCatalog::addItem(const CatItem& item)
 	{
 		// If we're not loading the catalog, search for an existing matching catalog item
 		// and replace it if it exists
-		for (int i = 0; i < catalogItems.size(); ++i)
-		{
-			if (item == catalogItems[i])
-			{
-				int usage = catalogItems[i].usage;
-				catalogItems[i] = CatalogItem(item, timestamp);
-				catalogItems[i].usage = usage;
-				replaced = true;
-				break;
-			}
-		}
+        if ( catalogItems.contains(item.hash) ) {
+            int usage = catalogItems[item.hash].usage;
+            catalogItems[item.hash] = CatalogItem(item, timestamp);
+            catalogItems[item.hash].usage = usage;
+            replaced = true;
+        }
 	}
 
 	if (!replaced)
 	{
 		// If no match found, append the item to the catalog
-		qDebug() << "Adding" << item.fullPath;
-		catalogItems.push_back(CatalogItem(item, timestamp));
+        // qDebug() << "Adding" << item.fullPath;
+        catalogItems.insert(item.hash, CatalogItem(item, timestamp));
 	}
 }
 
@@ -263,15 +262,18 @@ void SlowCatalog::purgeOldItems()
 {
 	// Prevent other threads accessing the catalog
 	QMutexLocker locker(&mutex);
+    QVector<int> to_remove;
+    const int PURGE_THRESHOLD = 3;
 
-	for (int i = catalogItems.size() - 1; i >= 0; --i)
-	{
-		if (catalogItems.at(i).timestamp < timestamp)
-		{
-			qDebug() << "Removing" << catalogItems.at(i).fullPath;
-			catalogItems.remove(i);
-		}
-	}
+    for( auto itm : catalogItems ) {
+        //auto& itm = catalogItems[k];
+        if ( (itm.timestamp+PURGE_THRESHOLD) < this->timestamp ) {
+            to_remove.append(itm.hash);
+        }
+    }
+
+    for ( auto k : to_remove )
+        catalogItems.remove(k);
 }
 
 
@@ -280,18 +282,15 @@ void SlowCatalog::incrementUsage(const CatItem& item)
 	// Prevent other threads accessing the catalog
 	QMutexLocker locker(&mutex);
 
-	for (int i = 0; i < catalogItems.size(); ++i)
-	{
-		if (item == catalogItems[i])
-		{
-			// If an item is currently demoted, return it to a usage count of 1
-			if (catalogItems[i].usage < 0)
-				catalogItems[i].usage = 1;
-			else
-				++catalogItems[i].usage;
-			break;
-		}
-	}
+    if ( catalogItems.contains(item.hash) ) {
+        auto& itm = catalogItems[item.hash];
+
+        // If an item is currently demoted, return it to a usage count of 1
+        if (itm.usage < 0)
+            itm.usage = 1;
+        else
+            itm.usage += 1;
+    }
 }
 
 
@@ -300,18 +299,15 @@ void SlowCatalog::demoteItem(const CatItem& item)
 	// Prevent catalog refreshes whilst searching
 	QMutexLocker locker(&mutex);
 
-	for (int i = 0; i < catalogItems.size(); ++i)
-	{
-		if (item == catalogItems[i])
-		{
-			// If an item is not demoted, demote it
-			if (catalogItems[i].usage > 0)
-				catalogItems[i].usage = -1;
-			else // otherwise demote it further
-				--catalogItems[i].usage;
-			break;
-		}
-	}
+    if ( catalogItems.contains(item.hash) ) {
+        auto& itm = catalogItems[item.hash];
+
+        // If an item is not demoted, demote it
+        if (itm.usage > 0)
+            itm.usage = -1;
+        else // otherwise demote it further
+            itm.usage -= 1;
+    }
 }
 
 
@@ -324,15 +320,49 @@ QList<CatItem*> SlowCatalog::search(const QString& searchText)
 	if (searchText.count() > 0)
 	{
 		QString lowSearch = searchText.toLower();
-
-		for (int i = 0; i < catalogItems.count(); ++i)
-		{
-			if (matches(&catalogItems[i], lowSearch))
-			{
-				result.push_back(&catalogItems[i]);
-			}
-		}
+        for( auto &itm: catalogItems ) {
+            if ( matches(&itm, lowSearch) )
+                result.push_back(&itm);
+        }
 	}
 
 	return result;
+}
+
+// Save the catalog as JSON to the specified filename
+bool SlowCatalog::saveJson(const QString& filename)
+{
+    // Prevent other threads accessing the catalog
+    QMutexLocker locker(&mutex);
+    QJsonArray jsonItems;
+
+    auto cat_item_to_json_object = [](CatalogItem const & x) {
+        return QJsonObject{
+            { "fullPath", x.fullPath },
+            { "shortName", x.shortName },
+            { "lowName", x.lowName },
+            { "icon", x.icon },
+            { "usage", x.usage },
+            { "id", x.id },
+            { "hash", x.hash },
+            { "timestamp", x.timestamp },
+        };
+    };
+
+    //for (int i = 0; i < count(); i++)
+    //    catalogItems_.append( cat_item_to_json_object(getItem(i)) );
+    for( auto& itm: catalogItems )
+        jsonItems.append( cat_item_to_json_object(itm) );
+
+    QJsonDocument doc(jsonItems);
+
+    // Compress and write the catalog to the specified file
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        qWarning("Could not open catalog file for writing");
+        return false;
+    }
+    file.write(doc.toJson());
+    return true;
 }

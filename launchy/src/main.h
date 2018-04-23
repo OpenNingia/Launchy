@@ -22,7 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "plugin_handler.h"
-#include "platform_util.h"
 #include "catalog.h"
 #include "catalog_builder.h"
 #include "icon_delegate.h"
