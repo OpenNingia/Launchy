@@ -12,10 +12,10 @@ init:
 
 environment:
   VSVER: 14.0 # Visual Studio 2015
-  BOOST_DIR: C:\Libraries\boost
+  BOOST_DIR: C:\Libraries\boost_1_67_0
   matrix:
-    - QTDIR: C:\Qt\5.8\msvc2015
-    - QTDIR: C:\Qt\5.8\msvc2015_64
+    - QTDIR: C:\Qt\5.11.2\msvc2015
+    - QTDIR: C:\Qt\5.11.2\msvc2015_64
 
 configuration: release
 
