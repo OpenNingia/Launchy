@@ -541,7 +541,7 @@ void LaunchyWidget::launchItem(CatItem& item)
         QString args = "";
         if (inputData.count() > 1)
             for(int i = 1; i < inputData.count(); ++i)
-                args += inputData[i].getText() + " ";
+                args += (i == 1 ? "" : " ") + inputData[i].getText();
 
         runProgram(item.fullPath, args);
     }
