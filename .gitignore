@@ -5,6 +5,8 @@
 *.pydevproject
 .project
 .metadata
+.vscode
+.vs
 bin/
 tmp/
 *.tmp
