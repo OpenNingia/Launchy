@@ -1208,9 +1208,16 @@ void LaunchyWidget::closeEvent(QCloseEvent* event)
     saveSettings();
     qDebug() << "Accepting events";
     event->accept();
-    qDebug() << "Joining builder thread";
-    gBuilder->wait();
-    qDebug() << "Quitting QApplication";
+
+    if ( gBuilder->isRunning() ) {
+        qDebug() << "Stopping builder thread";
+        gBuilder->stop();
+
+        qDebug() << "Joining builder thread";
+        gBuilder->wait();
+    }
+
+	qDebug() << "Quitting QApplication";
     qApp->quit();
 }
 

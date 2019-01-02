@@ -263,9 +263,13 @@ void SlowCatalog::purgeOldItems()
 	// Prevent other threads accessing the catalog
 	QMutexLocker locker(&mutex);
 
+	// 3 seems a nice value, for now there is no need to configure this parameters
+	const int PURGE_THRESHOLD = 3; 
+
+	// FIXME. I don't really like to remove-in-place like this
 	for (int i = catalogItems.size() - 1; i >= 0; --i)
-	{
-		if (catalogItems.at(i).timestamp < timestamp)
+	{		
+		if ((catalogItems.at(i).timestamp+PURGE_THRESHOLD) < timestamp)
 		{
 			qDebug() << "Removing" << catalogItems.at(i).fullPath;
 			catalogItems.remove(i);
