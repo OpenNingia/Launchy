@@ -237,13 +237,12 @@ void SlowCatalog::addItem(const CatItem& item)
 	{
 		// If we're not loading the catalog, search for an existing matching catalog item
 		// and replace it if it exists
+		
 		for (int i = 0; i < catalogItems.size(); ++i)
 		{
 			if (item == catalogItems[i])
-			{
-				int usage = catalogItems[i].usage;
-				catalogItems[i] = CatalogItem(item, timestamp);
-				catalogItems[i].usage = usage;
+			{								
+				catalogItems.replace(i, CatalogItem{item, timestamp});
 				replaced = true;
 				break;
 			}
@@ -254,7 +253,7 @@ void SlowCatalog::addItem(const CatItem& item)
 	{
 		// If no match found, append the item to the catalog
 		qDebug() << "Adding" << item.fullPath;
-		catalogItems.push_back(CatalogItem(item, timestamp));
+		catalogItems.append(CatalogItem{item, timestamp});
 	}
 }
 
