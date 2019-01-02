@@ -64,7 +64,7 @@ bool Catalog::save(const QString& filename)
 
 	for (int i = 0; i < count(); i++)
 	{
-		CatItem item = getItem(i);
+		auto& item = getItem(i);
 		out << item;
 	}
 
