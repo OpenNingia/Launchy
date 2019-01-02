@@ -6,7 +6,7 @@
 
 // currently, we assume that all reg values are returned as strings
 
-HKEY FhoReg::OpenKey(HKEY baseKey, QString &subKeyName, DWORD options) {
+HKEY FhoReg::OpenKey(HKEY baseKey, QString subKeyName, DWORD options) {
 	HKEY k;
 	
 	LONG l = RegOpenKeyEx(baseKey,
@@ -27,7 +27,7 @@ void FhoReg::CloseKey(HKEY key) {
 	}
 }
 
-QStringList* FhoReg::EnumValues(HKEY parentKey, QString &parentSubKeyName) {
+QStringList* FhoReg::EnumValues(HKEY parentKey, QString parentSubKeyName) {
 	QStringList *resultList = new QStringList();
 
 	HKEY k = OpenKey(parentKey, parentSubKeyName, KEY_QUERY_VALUE);
@@ -99,7 +99,7 @@ QStringList* FhoReg::EnumSubKeys(HKEY key) {
 	return resultList;
 }
 
-QStringList* FhoReg::EnumSubKeys(HKEY parentKey, QString &parentSubKeyName) {
+QStringList* FhoReg::EnumSubKeys(HKEY parentKey, QString parentSubKeyName) {
 	QStringList *resultList;
 
 	HKEY k = OpenKey(parentKey, parentSubKeyName, KEY_ENUMERATE_SUB_KEYS);
@@ -115,7 +115,7 @@ QStringList* FhoReg::EnumSubKeys(HKEY parentKey, QString &parentSubKeyName) {
 	return resultList;
 }
 
-QString FhoReg::GetKeyValue(HKEY key, QString &valueName) {
+QString FhoReg::GetKeyValue(HKEY key, QString valueName) {
 	DWORD type;
 	BYTE keyVal[maxSize];
 	DWORD sz = maxSize;
@@ -134,7 +134,7 @@ QString FhoReg::GetKeyValue(HKEY key, QString &valueName) {
 	return NULL;
 }
 
-QString FhoReg::GetKeyValue(HKEY parentKey, QString &parentSubKeyName, QString &valueName) {
+QString FhoReg::GetKeyValue(HKEY parentKey, QString parentSubKeyName, QString valueName) {
 	HKEY k = OpenKey(parentKey, parentSubKeyName, KEY_QUERY_VALUE);
 
 	QString value;
@@ -152,7 +152,7 @@ QString FhoReg::GetKeyDefaultValue(HKEY key) {
 	return GetKeyValue(key, QString());
 }
 
-QString FhoReg::GetKeyDefaultValue(HKEY parentKey, QString &parentSubKeyName) {
+QString FhoReg::GetKeyDefaultValue(HKEY parentKey, QString parentSubKeyName) {
 	HKEY k = OpenKey(parentKey, parentSubKeyName, KEY_QUERY_VALUE);
 
 	QString value;
