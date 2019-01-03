@@ -23,8 +23,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "SettingsManager.h"
 #include <QSettings> // need this for os x
-#define LAUNCHY_VERSION 281
-#define LAUNCHY_VERSION_STRING "2.8.1"
+
+// FIXME. numerical version and string version diverges because of 2.10
+// I don't want to publish 3.x because of semantics
+#define LAUNCHY_VERSION 300 
+#define LAUNCHY_VERSION_STRING "2.10.0"
 
 #define HASH_LAUNCHY 0
 #define HASH_HISTORY 1
