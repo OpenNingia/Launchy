@@ -67,7 +67,7 @@ deploy:
   description: 'Launchy'
   provider: GitHub
   auth_token:
-    secure: 6KIiweNDc/wdNSHGpLXf5okRXUgCd4p6NEooooLExdP7uQpC0eQ43J1sfHjlYN/F
+    secure: ovJS5y2wip9xPRPeETEpmphe+QX6PVHUnvYqy73OPGUTt+yEV5WdfRCFZDxWTBn/
   artifact: /.*Launchy_Setup*\.exe/
   draft: false
   prerelease: false
