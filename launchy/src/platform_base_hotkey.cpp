@@ -28,13 +28,13 @@
  * \brief Constructs new GlobalShortcutManager.
  */
 GlobalShortcutManager::GlobalShortcutManager()
-        : QObject(QCoreApplication::instance())
+	: QObject(QCoreApplication::instance())
 {
 }
 
 GlobalShortcutManager::~GlobalShortcutManager()
 {
-        clear();
+	clear();
 }
 
 GlobalShortcutManager* GlobalShortcutManager::instance_;
@@ -44,9 +44,9 @@ GlobalShortcutManager* GlobalShortcutManager::instance_;
  */
 GlobalShortcutManager* GlobalShortcutManager::instance()
 {
-        if (!instance_)
-                instance_ = new GlobalShortcutManager();
-        return instance_;
+	if (!instance_)
+		instance_ = new GlobalShortcutManager();
+	return instance_;
 }
 
 /**
@@ -57,14 +57,14 @@ GlobalShortcutManager* GlobalShortcutManager::instance()
  */
 void GlobalShortcutManager::connect(const QKeySequence& key, QObject* receiver, const char* slot)
 {
-        KeyTrigger* t = instance()->triggers_[key];
-        if (!t) {
-                t = new KeyTrigger(key);
-                instance()->triggers_.insert(key, t);
-        }
+	KeyTrigger* t = instance()->triggers_[key];
+	if (!t) {
+		t = new KeyTrigger(key);
+		instance()->triggers_.insert(key, t);
+	}
 
-        QObject::connect(t, SIGNAL(activated()), receiver, slot);
-		
+	QObject::connect(t, SIGNAL(activated()), receiver, slot);
+
 }
 
 bool GlobalShortcutManager::isConnected(const QKeySequence& key)
@@ -83,19 +83,23 @@ bool GlobalShortcutManager::isConnected(const QKeySequence& key)
  */
 void GlobalShortcutManager::disconnect(const QKeySequence& key, QObject* receiver, const char* slot)
 {
-        KeyTrigger* t = instance()->triggers_[key];
-        if (!t) {
-                return;
-        }
+	KeyTrigger* t = instance()->triggers_[key];
+	if (!t) {
+		return;
+	}
 
-        QObject::disconnect(t, SIGNAL(activated()), receiver, slot);
+	QObject::disconnect(t, SIGNAL(activated()), receiver, slot);
 
 	delete instance()->triggers_.take(key);
 }
 
 void GlobalShortcutManager::clear()
 {
-        foreach (KeyTrigger* t, instance()->triggers_)
-                delete t;
-        instance()->triggers_.clear();
+	foreach (KeyTrigger* t, instance()->triggers_) {
+		if ( t != nullptr ) {
+			t->disconnect();
+			delete t;
+		}
+	}
+	instance()->triggers_.clear();
 }

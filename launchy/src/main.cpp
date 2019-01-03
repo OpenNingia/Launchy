@@ -102,6 +102,31 @@ void messageOutput(QtMsgType type, const char *msg)
 }
 #endif
 
+#if defined(ENABLE_DEBUG_LOG)
+#if QT_VERSION >= 0x050000
+void messageOutput(QtMsgType type, const QMessageLogContext & ctx, const QString & msg)
+#else
+void messageOutput(QtMsgType type, const char *msg)
+#endif
+{
+    static QMap<QtMsgType, QString> categs;
+
+    // FILL CATEGS IF EMPTY
+    if ( categs.empty() ) {
+        categs[QtDebugMsg]      = "DEBUG   ";
+        categs[QtWarningMsg]    = "WARNING ";
+        categs[QtCriticalMsg]   = "CRITICAL";
+        categs[QtFatalMsg]      = "FATAL   ";
+    }
+
+    auto log_msg = QString("Launchy - [%2] %3")
+              .arg(categs[type])
+              .arg(msg);
+
+	::OutputDebugString(reinterpret_cast<const wchar_t *>(log_msg.utf16()));
+}
+#endif
+
 void SetForegroundWindowEx(HWND hWnd)
 {
     // Attach foreground window thread to our thread
@@ -1200,12 +1225,15 @@ void LaunchyWidget::onHotkey()
 
 void LaunchyWidget::closeEvent(QCloseEvent* event)
 {    
-    qDebug() << "Stopping builder thread";
-    gBuilder->stop();
+    qDebug() << "Removing hotkeys registration";
+    platform->freeHotkeys();
+    
     qDebug() << "Stopping fader timer";
     fader->stop();
+
     qDebug() << "Saving settings";
     saveSettings();
+
     qDebug() << "Accepting events";
     event->accept();
 
@@ -1724,7 +1752,7 @@ int main(int argc, char *argv[])
 
     qApp->setQuitOnLastWindowClosed(false);
 
-#if defined(ENABLE_LOG_FILE)
+#if defined(ENABLE_LOG_FILE) || defined(ENABLE_DEBUG_LOG)
 #   if QT_VERSION >= 0x050000
         qInstallMessageHandler(messageOutput);
 #   else

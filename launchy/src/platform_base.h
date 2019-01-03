@@ -61,6 +61,7 @@ public:
 	// Set hotkey
 	virtual QKeySequence getHotkey() const = 0;
 	virtual bool setHotkey(const QKeySequence& key, QObject* receiver, const char* slot) = 0;
+	virtual void freeHotkeys() = 0;
 
 	// Need to alter an indexed item?  e.g. .desktop files
 	virtual void alterItem(CatItem*) { }

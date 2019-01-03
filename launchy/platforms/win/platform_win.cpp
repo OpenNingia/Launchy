@@ -250,6 +250,10 @@ bool PlatformWin::setHotkey(const QKeySequence& newHotkey, QObject* receiver, co
 	return GlobalShortcutManager::isConnected(newHotkey);
 }
 
+void PlatformWin::freeHotkeys()
+{
+	GlobalShortcutManager::clear();
+}
 
 bool PlatformWin::supportsAlphaBorder() const
 {

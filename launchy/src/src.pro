@@ -103,9 +103,9 @@ win32 {
         CONFIG(release, debug|release):DESTDIR = ../release/
     }
 
-    #DEFINES += ENABLE_LOG_FILE
-    #QMAKE_CXXFLAGS_RELEASE += /Z7
-    #QMAKE_LFLAGS_RELEASE += /DEBUG
+    DEFINES += ENABLE_DEBUG_LOG
+    QMAKE_CXXFLAGS_RELEASE += /Zi
+    QMAKE_LFLAGS_RELEASE += /DEBUG
 }
 
 #TRANSLATIONS = ../translations/launchy_fr.ts \

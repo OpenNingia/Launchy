@@ -38,6 +38,7 @@ public:
 	virtual void setPreferredIconSize(int size);
 	virtual QKeySequence getHotkey() const;
 	virtual bool setHotkey(const QKeySequence& newHotkey, QObject* receiver, const char* slot);
+	virtual void freeHotkeys();
 	virtual QHash<QString, QList<QString> > getDirectories();
 	virtual QList<Directory> getDefaultCatalogDirectories();
 	virtual QString expandEnvironmentVars(QString);
