@@ -62,20 +62,6 @@ artifacts:
 build_script:
   - '%make%'
 
-# deploy on bintray
-deploy:
-- provider: BinTray
-  username: openningia
-  api_key:
-    secure: +5ZaU/ubYVQCdXHgtbnmczUoLuDG0KYxZ/yPzi0oblV3DSMfhVhdx0Mb03ZqKKZf
-  subject: openningia
-  repo: Launchy
-  package: LaunchyInstaller
-#  version: version
-  publish: true
-  override: true
-#  explode: true
-
 deploy:
   release: launchy-v$(appveyor_build_version)
   description: 'Launchy'
