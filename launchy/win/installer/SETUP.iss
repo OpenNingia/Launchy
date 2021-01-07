@@ -91,8 +91,9 @@ Source: {#PWD}\skins\Mercury\*.*; DestDir: {app}\skins\Mercury\; Flags: ignoreve
 Source: {#PWD}\skins\Quicksilver2\*.*; DestDir: {app}\skins\Quicksilver2\; Flags: ignoreversion
 Source: {#PWD}\skins\Note\*.*; DestDir: {app}\skins\Note\; Flags: ignoreversion
 Source: {#PWD}\skins\Black_Glass\*.*; DestDir: {app}\skins\Black Glass\; Flags: ignoreversion
-Source: {#PWD}\skins\Default\*.*; DestDir: {app}\skins\Default\; Flags: ignoreversion
 Source: {#PWD}\skins\Spotlight_Wide\*.*; DestDir: {app}\skins\Spotlight Wide\; Flags: ignoreversion
+Source: {#PWD}\skins\Flat Modern Dark\*.*; DestDir: {app}\skins\Flat Modern Dark\; Flags: ignoreversion
+Source: {#PWD}\skins\Flat Modern Light\*.*; DestDir: {app}\skins\Flat Modern Light\; Flags: ignoreversion
 
 Source: ..\Utilities\Special Folders\C Drive.lnk; DestDir: {app}\Utilities\Special Folders\; Flags: ignoreversion
 Source: ..\Utilities\Special Folders\Control Panel.lnk; DestDir: {app}\Utilities\Special Folders\; Flags: ignoreversion
@@ -121,6 +122,8 @@ Name: {userdesktop}\{#MyAppName}; Filename: {app}\{#MyAppExeName}; Parameters: /
 Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}; Parameters: /show; Filename: {app}\{#MyAppExeName}; WorkingDir: {app}; Tasks: quicklaunchicon
 
 [Run]
+; Flat Modern Dark is the new Default skin
+Filename: "{cmd}"; Parameters: "/C mklink /D ""{app}\skins\Default\"" ""{app}\skins\Flat Modern Dark\"""
 Filename: {app}\{#MyAppExeName}; Parameters: /show; Description: {cm:LaunchProgram,{#MyAppName}}; Flags: nowait postinstall skipifsilent runasoriginaluser
 
 [UninstallDelete]
