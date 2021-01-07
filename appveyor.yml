@@ -6,9 +6,6 @@ image:
 init:
   # Gather some basic build environment details.
   - rem set
-  - dir "%ProgramFiles(x86)%\Microsoft Visual Studio *" /b /o
-  - dir "%ProgramFiles%\Microsoft SDKs\Windows" /b /o
-  - dir "%SystemDrive%\Qt\5.*" /b /o
 
 environment:
   VCDIR: \Microsoft Visual Studio\2019\Community\VC
