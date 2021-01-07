@@ -1,7 +1,7 @@
 version: 2.10.{build}
 
 image:
-- Visual Studio 2015
+- Visual Studio 2019
 
 init:
   # Gather some basic build environment details.
@@ -11,11 +11,11 @@ init:
   - dir "%SystemDrive%\Qt\5.*" /b /o
 
 environment:
-  VSVER: 14.0 # Visual Studio 2015
-  BOOST_DIR: C:\Libraries\boost_1_67_0
+  VCDIR: \Microsoft Visual Studio\2019\Community\VC
+  BOOST_DIR: C:\Libraries\boost_1_73_0
   matrix:
-    - QTDIR: C:\Qt\5.11.2\msvc2015
-    - QTDIR: C:\Qt\5.11.2\msvc2015_64
+    - QTDIR: C:\Qt\5.15.2\msvc2019
+    - QTDIR: C:\Qt\5.15.2\msvc2019_64
 
 configuration: release
 
@@ -27,7 +27,7 @@ install:
   - set ISSO=SETUP.iss
   - if %QTDIR:_64=%==%QTDIR% set ARCH=x86
   - if %QTDIR:msvc=%==%QTDIR% %make% --version
-  - if not %QTDIR:msvc=%==%QTDIR% call "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\vcvarsall.bat" %ARCH%
+  - if not %QTDIR:msvc=%==%QTDIR% call "%ProgramFiles(x86)%%VCDIR%\Auxiliary\Build\vcvarsall.bat" %ARCH%
   - if not %QTDIR:msvc=%==%QTDIR% set make=nmake.exe
   - if not %QTDIR:msvc=%==%QTDIR% %make% /? > nul
   - if %ARCH%==x64 set ISSO=SETUP_x64.iss
@@ -45,8 +45,6 @@ after_build:
   - cd %APPVEYOR_BUILD_FOLDER%\launchy\win
   - buildTranslations.bat
   - xcopy /E /F /I /Y %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION% %APPVEYOR_BUILD_FOLDER%\launchy\%CONFIGURATION%
-  - echo copy "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\redist\1033\vcredist_%ARCH%*" %APPVEYOR_BUILD_FOLDER%\launchy\%CONFIGURATION%
-  - copy "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\redist\1033\vcredist_%ARCH%*" %APPVEYOR_BUILD_FOLDER%\launchy\%CONFIGURATION%
   - cd %APPVEYOR_BUILD_FOLDER%\launchy\%CONFIGURATION%
   - windeployqt .
   - cd %APPVEYOR_BUILD_FOLDER%\launchy\win\installer
@@ -61,6 +59,20 @@ artifacts:
 
 build_script:
   - '%make%'
+
+deploy:
+  release: launchy-v$(appveyor_build_version)
+  description: 'Launchy'
+  provider: GitHub
+  auth_token:
+    secure: ovJS5y2wip9xPRPeETEpmphe+QX6PVHUnvYqy73OPGUTt+yEV5WdfRCFZDxWTBn/
+  artifact: /.*Launchy_Setup*\.exe/
+  draft: true
+  prerelease: true
+  on:
+    branch: master                 # release from master branch only
+    APPVEYOR_REPO_TAG: true        # deploy on tag push only
+
 
 # fetch repository as zip archive
 shallow_clone: true
