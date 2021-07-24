@@ -1,4 +1,4 @@
-version: 2.10.{build}
+version: 3.0.{build}
 
 image:
 - Visual Studio 2019
@@ -9,7 +9,6 @@ init:
 
 environment:
   VCDIR: \Microsoft Visual Studio\2019\Community\VC
-  BOOST_DIR: C:\Libraries\boost_1_73_0
   matrix:
     - QTDIR: C:\Qt\5.15.2\msvc2019
     - QTDIR: C:\Qt\5.15.2\msvc2019_64
@@ -18,7 +17,6 @@ configuration: release
 
 install:
   - '%QTDIR%\bin\qtenv2.bat'
-  - qmake -v
   - set ARCH=x64
   - set SETUPOUT=Launchy_Setup
   - set ISSO=SETUP.iss
