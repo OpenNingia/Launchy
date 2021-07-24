@@ -14,7 +14,7 @@
 [Setup]
 AppMutex=LaunchyMutex,Global\LaunchyMutex
 AppName={#MyAppName}
-AppVerName={#MyAppName} {%APPVEYOR_BUILD_VERSION|2.8.10}
+AppVerName={#MyAppName} {%APPVEYOR_BUILD_VERSION|3.0.0}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -52,14 +52,13 @@ Type: filesandordirs; Name: {app}\skins\Mercury
 Type: filesandordirs; Name: {app}\skins\Note
 Type: filesandordirs; Name: {app}\skins\Quicksilver2
 Type: filesandordirs; Name: {app}\skins\Spotlight Wide
-Type: filesandordirs; Name: {app}\platform_win.dll
 
 [Files]
 Source: {#PWD}\release\{#MyAppExeName}; DestDir: {app}; Flags: ignoreversion
 Source: LaunchyPortable.ini; DestDir: {app}; DestName: Launchy.ini; Flags: onlyifdoesntexist; Check: IsPortable
 
 Source: "{#PWD}\release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#PWD}\release\bearer\*.dll"; DestDir: "{app}\bearer"; Flags: ignoreversion
+Source: "{#PWD}\release\styles\*.dll"; DestDir: "{app}\styles"; Flags: ignoreversion
 Source: "{#PWD}\release\iconengines\*.dll"; DestDir: "{app}\iconengines"; Flags: ignoreversion
 Source: "{#PWD}\release\imageformats\*.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
 Source: "{#PWD}\release\platforms\*.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
@@ -77,11 +76,11 @@ Source: {#PWD}\translations\launchy_it_IT.qm; DestDir: {app}\tr\; Flags: ignorev
 
 ; Plugins
 ; plugins may require all 3 runtimes
-Source: "{#PWD}\release\plugins\*.dll"; DestDir: "{app}\plugins"; Flags: ignoreversion
+; Source: "{#PWD}\release\plugins\*.dll"; DestDir: "{app}\plugins"; Flags: ignoreversion
 
 ; Plugin icons
-Source: {#PWD}\plugins\controly\*.png; DestDir: {app}\plugins\icons\; Flags: ignoreversion
-Source: {#PWD}\plugins\calcy\*.png; DestDir: {app}\plugins\icons\; Flags: ignoreversion
+; Source: {#PWD}\plugins\controly\*.png; DestDir: {app}\plugins\icons\; Flags: ignoreversion
+; Source: {#PWD}\plugins\calcy\*.png; DestDir: {app}\plugins\icons\; Flags: ignoreversion
 
 ; Documentation
 Source: {#PWD}\license.txt; DestDir: {app}; Flags: ignoreversion
