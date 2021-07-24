@@ -9,9 +9,7 @@ init:
 
 environment:
   VCDIR: \Microsoft Visual Studio\2019\Community\VC
-  matrix:
-    - QTDIR: C:\Qt\5.15.2\msvc2019
-    - QTDIR: C:\Qt\5.15.2\msvc2019_64
+  QTDIR: C:\Qt\6.1.2\msvc2019_64  
 
 configuration: release
 
