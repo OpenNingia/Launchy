@@ -22,9 +22,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "platform_win_util.h"
 #include "WinIconProvider.h"
 
-#if QT_VERSION >= 0x050000
-#   include <QtWinExtras/QtWinExtras>
-#endif
+#include <QDir>
+#include <QIcon>
+#include <QImage>
+#include <QProcessEnvironment>
+#include <QRegularExpression>
 
 // Temporary work around to avoid having to install the latest Windows SDK
 #ifndef __IShellItemImageFactory_INTERFACE_DEFINED__
@@ -125,11 +127,8 @@ QIcon WinIconProvider::icon(const QFileInfo& info) const
 		QString filePath = QDir::toNativeSeparators(info.filePath());
         ExtractIconEx(reinterpret_cast<const wchar_t*>(filePath.utf16()), 0, &hIcon, NULL, 1);
 
-#if QT_VERSION >= 0x050000
-        retIcon = QIcon(QtWin::fromHICON(hIcon));
-#else
-        retIcon = QIcon(QPixmap::fromWinHICON(hIcon));
-#endif
+		auto pixmap = QPixmap::fromImage(QImage::fromHICON(hIcon));
+		retIcon = QIcon{ pixmap };
 		DestroyIcon(hIcon);
 	}
 	else
@@ -140,8 +139,8 @@ QIcon WinIconProvider::icon(const QFileInfo& info) const
 		// Get the icon index using SHGetFileInfo
 		SHFILEINFO sfi = {0};
 
-		QRegExp re("\\\\\\\\([a-z0-9\\-]+\\\\?)?$", Qt::CaseInsensitive);
-		if (re.exactMatch(filePath))
+		QRegularExpression re("\\\\\\\\([a-z0-9\\-]+\\\\?)?$", QRegularExpression::CaseInsensitiveOption);
+		if (re.match(filePath).hasMatch())
 		{
 			// To avoid network hangs, explicitly fetch the My Computer icon for UNCs
 			LPITEMIDLIST pidl;
@@ -213,11 +212,8 @@ bool WinIconProvider::addIconFromImageList(int imageListIndex, int iconIndex, QI
 	}
 	if (hResult == S_OK && hIcon)
 	{
-#if QT_VERSION >= 0x050000
-        icon.addPixmap(QtWin::fromHICON(hIcon));
-#else
-        icon.addPixmap(QPixmap::fromWinHICON(hIcon));
-#endif
+		auto pixmap = QPixmap::fromImage(QImage::fromHICON(hIcon));
+        icon.addPixmap(pixmap);
 
 		DestroyIcon(hIcon);
 	}
@@ -296,48 +292,52 @@ namespace{
 /*
  * fixed version of qt_pixmapFromWinHBitmap
  */
-QPixmap fixed_qt_pixmapFromWinHBitmap(HBITMAP bitmap, int hbitmapformat = 0){
-    // Verify size
-    BITMAP bitmap_info;
-    memset(&bitmap_info, 0, sizeof(BITMAP));
+QPixmap fixed_qt_pixmapFromWinHBitmap(HBITMAP bitmap, int hbitmapformat = 0) {
 
-    const int res = GetObject(bitmap, sizeof(BITMAP), &bitmap_info);
-    if (!res) {
-        qErrnoWarning("QPixmap::fromWinHBITMAP(), failed to get bitmap info");
-        return QPixmap();
-    }
-    const int w = bitmap_info.bmWidth;
-    const int h = bitmap_info.bmHeight;
+	Q_UNUSED(hbitmapformat);
 
-    // Get bitmap bits
-    HDC display_dc = GetDC(0);
-    QScopedArrayPointer<uchar> data(getDiBits(display_dc, bitmap, w, h, true));
-    if (data.isNull()) {
-        ReleaseDC(0, display_dc);
-        return QPixmap();
-    }
-    /********
-     * BEGIN Changed Code
-     ********/
-    const QImage::Format imageFormat = hbitmapformat == QtWin::HBitmapNoAlpha ?
-                QImage::Format_RGB32 : hbitmapformat == QtWin::HBitmapPremultipliedAlpha ?
-                    QImage::Format_ARGB32_Premultiplied : QImage::Format_ARGB32;
-    /********
-     * END Changed Code
-     ********/
+	// Verify size
+	BITMAP bitmap_info;
+	memset(&bitmap_info, 0, sizeof(BITMAP));
 
-    // Create image and copy data into image.
-    QImage image(w, h, imageFormat);
-    if (image.isNull()) { // failed to alloc?
-        ReleaseDC(0, display_dc);
-        qWarning("%s, failed create image of %dx%d", __FUNCTION__, w, h);
-        return QPixmap();
-    }
-    copyImageDataCreateAlpha(data.data(), &image);
-    ReleaseDC(0, display_dc);
-    return QPixmap::fromImage(image);
+	const int res = GetObject(bitmap, sizeof(BITMAP), &bitmap_info);
+	if (!res) {
+		qErrnoWarning("QPixmap::fromWinHBITMAP(), failed to get bitmap info");
+		return QPixmap();
+	}
+	const int w = bitmap_info.bmWidth;
+	const int h = bitmap_info.bmHeight;
+
+	// Get bitmap bits
+	HDC display_dc = GetDC(0);
+	QScopedArrayPointer<uchar> data(getDiBits(display_dc, bitmap, w, h, true));
+	if (data.isNull()) {
+		ReleaseDC(0, display_dc);
+		return QPixmap();
+	}
+	/********
+	 * BEGIN Changed Code
+	 ********/
+	/*const QImage::Format imageFormat = hbitmapformat == QtWin::HBitmapNoAlpha ?
+		QImage::Format_RGB32 : hbitmapformat == QtWin::HBitmapPremultipliedAlpha ?
+		QImage::Format_ARGB32_Premultiplied : QImage::Format_ARGB32;*/
+
+	const auto imageFormat = QImage::Format_RGB32;
+	/********
+	 * END Changed Code
+	 ********/
+
+	 // Create image and copy data into image.
+	QImage image(w, h, imageFormat);
+	if (image.isNull()) { // failed to alloc?
+		ReleaseDC(0, display_dc);
+		qWarning("%s, failed create image of %dx%d", __FUNCTION__, w, h);
+		return QPixmap();
+	}
+	copyImageDataCreateAlpha(data.data(), &image);
+	ReleaseDC(0, display_dc);
+	return QPixmap::fromImage(image);
 }
-
 
 // On Vista or 7 we could use SHIL_JUMBO to get a 256x256 icon,
 // but we'll use SHCreateItemFromParsingName as it'll give an identical
@@ -361,11 +361,8 @@ bool WinIconProvider::addIconFromShellFactory(QString filePath, QIcon& icon) con
 				hr = psiif->GetImage(iconSize, SIIGBF_RESIZETOFIT | SIIGBF_ICONONLY, &iconBitmap);
 				if (hr == S_OK)
 				{
-#if QT_VERSION >= 0x050000
-                    QPixmap iconPixmap = fixed_qt_pixmapFromWinHBitmap(iconBitmap, QtWin::HBitmapAlpha);
-#else
-                    QPixmap iconPixmap = QPixmap::fromWinHBITMAP(iconBitmap, QPixmap::PremultipliedAlpha);
-#endif
+                    QPixmap iconPixmap = fixed_qt_pixmapFromWinHBitmap(iconBitmap);
+					//auto iconPixmap = QPixmap::fromImage(QImage::fromHBITMAP(iconBitmap));
 					icon.addPixmap(iconPixmap);
 					DeleteObject(iconBitmap);
 				}

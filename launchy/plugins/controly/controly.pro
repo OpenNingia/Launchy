@@ -6,7 +6,7 @@ INCLUDEPATH += ../../src/
 PRECOMPILED_HEADER = precompiled.h
 DEFINES += WITH_GUI
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += gui widgets winextras
+greaterThan(QT_MAJOR_VERSION, 4): QT += gui widgets
 
 # UI_DIR = ../../plugins/controly/
 FORMS = dlg.ui

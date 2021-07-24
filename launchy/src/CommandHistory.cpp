@@ -118,7 +118,7 @@ void CommandHistory::search(const QString& /*searchText*/, QList<CatItem>& searc
 		if (historyItem.empty()) continue;
 		CatItem item = historyItem.first().getTopResult();
 		item.id = HASH_HISTORY;
-		item.data = (void*)index++;
+		item.data = reinterpret_cast<void*>(index++);
 		searchResults.push_back(item);
 	}
 }

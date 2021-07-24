@@ -123,10 +123,10 @@ QIcon IconExtractor::getIcon(const CatItem& item)
     {
         if (item.fullPath.length() == 0)
             return QIcon();
-        return platform->icon(QDir::toNativeSeparators(item.fullPath));
+        return platform->icon(QFileInfo{ QDir::toNativeSeparators(item.fullPath) });
     }
     else
     {
-        return platform->icon(QDir::toNativeSeparators(item.icon));
+        return platform->icon(QFileInfo{ QDir::toNativeSeparators(item.icon) });
     }
 }

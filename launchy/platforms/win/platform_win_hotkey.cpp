@@ -42,9 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "platform_base_hotkey.h"
 #include "platform_Base_hottrigger.h"
 
-#if QT_VERSION >= 0x050000
-#   include <QtWidgets/QWidget>
-#endif
+#include <QtWidgets/QWidget>
 
 
 HHOOK keyboardHook;
@@ -168,8 +166,7 @@ public:
          * Triggers activated() signal when the hotkey is activated.
          */
 
-#if QT_VERSION >= 0x050000
-        bool nativeEvent(const QByteArray &eventType, void *message, long *result)
+        bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
         {
             MSG* msg = static_cast<MSG*>(message);
             if ((msg->message == WM_HOTKEY && msg->wParam == id_) || msg->message == WM_USER) {
@@ -178,17 +175,6 @@ public:
             }
             return QWidget::nativeEvent(eventType, message, result);
         }
-#else
-        bool winEvent(MSG* m, long* result)
-		{
-			if ((m->message == WM_HOTKEY && m->wParam == id_) || m->message == WM_USER) {
-				emit trigger_->activated();
-				return true;
-			}
-			return QWidget::winEvent(m, result);
-		}
-#endif
-
 
 private:
         KeyTrigger* trigger_;
@@ -206,14 +192,12 @@ private:
         static bool convertKeySequence(const QKeySequence& ks, UINT* mod_, UINT* key_)
         {
             int code = 0;
-#if QT_VERSION >= 0x050000
+
             if ( ks.count() > 0 )
                 code = ks[0];
-#else
-            code = ks;
-#endif
-				// JK: I had to put the code -='s here and comment out code &= 0xffff 
-				// to correctly identify the action key
+
+            // JK: I had to put the code -='s here and comment out code &= 0xffff 
+			// to correctly identify the action key
 
                 UINT mod = 0;
 				if (code & Qt::META) {

@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "precompiled.h"
 #include "CharListWidget.h"
 
+#include <QKeyEvent>
+
 
 CharListWidget::CharListWidget(QWidget* parent) : 
 	QListWidget(parent)
@@ -39,7 +41,7 @@ void CharListWidget::keyPressEvent(QKeyEvent* key)
 
 void CharListWidget::mouseDoubleClickEvent(QMouseEvent* /*event*/)
 {
-	QKeyEvent key(QEvent::KeyPress, Qt::Key_Enter, NULL);
+	QKeyEvent key{ QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier };
 	emit keyPressed(&key);
 }
 

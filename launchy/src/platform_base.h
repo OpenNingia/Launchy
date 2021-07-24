@@ -22,10 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QtGui> // OSX needs this
 
-#if QT_VERSION >= 0x050000
-#   include <QtWidgets/QApplication>
-#   include <QtWidgets/QFileIconProvider>
-#endif
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QFileIconProvider>
 
 #include "Directory.h"
 #include "catalog.h"

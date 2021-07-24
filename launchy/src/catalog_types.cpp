@@ -112,7 +112,7 @@ void Catalog::searchCatalogs(const QString& text, QList<CatItem>& out)
 	QList<CatItem*> catMatches = search(text);
 
 	// Now prioritize the catalog items
-	qSort(catMatches.begin(), catMatches.end(), CatLess);
+	std::sort(catMatches.begin(), catMatches.end(), CatLess);
 
 	// Check for history matches
 	QString location = "History/" + text;

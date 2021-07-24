@@ -30,13 +30,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "plugin_interface.h"
 #include "FileSearch.h"
 
-#if QT_VERSION >= 0x050000
-#   include <QtWidgets/QScrollBar>
-#   include <QtWidgets/QMessageBox>
-#   include <QtWidgets/QDesktopWidget>
-#   include <QtWidgets/QMenu>
-#   include <QStandardPaths>
-#endif
+#include <QtWidgets/QScrollBar>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QMenu>
+#include <QStandardPaths>
+#include <QScreen>
+#include <QNetworkProxy>
+
 
 #if defined(ENABLE_LOG_FILE)
 #define MAX_LOG_SIZE  1024*1024
@@ -60,11 +60,7 @@ QFileInfo rotate_log_file(const char* log_name)
     return log_file;
 }
 
-#if QT_VERSION >= 0x050000
 void messageOutput(QtMsgType type, const QMessageLogContext & ctx, const QString & msg)
-#else
-void messageOutput(QtMsgType type, const char *msg)
-#endif
 {
     static QMap<QtMsgType, QString> categs;
 
@@ -103,11 +99,7 @@ void messageOutput(QtMsgType type, const char *msg)
 #endif
 
 #if defined(ENABLE_DEBUG_LOG)
-#if QT_VERSION >= 0x050000
-void messageOutput(QtMsgType type, const QMessageLogContext & ctx, const QString & msg)
-#else
-void messageOutput(QtMsgType type, const char *msg)
-#endif
+void messageOutput(QtMsgType type, const QMessageLogContext &, const QString & msg)
 {
     static QMap<QtMsgType, QString> categs;
 
@@ -317,9 +309,9 @@ void LaunchyWidget::executeStartupCommand(int command)
 {
     if (command & ResetPosition)
     {
-        QRect r = geometry();
-        int primary = qApp->desktop()->primaryScreen();
-        QRect scr = qApp->desktop()->availableGeometry(primary);
+        auto screen = qApp->primaryScreen();
+        QRect r = geometry();               
+        QRect scr = screen->availableGeometry();
 
         QPoint pt(scr.width()/2 - r.width()/2, scr.height()/2 - r.height()/2);
         move(pt);
@@ -350,7 +342,8 @@ void LaunchyWidget::paintEvent(QPaintEvent* event)
 {
     // Do the default draw first to render any background specified in the stylesheet
     QStyleOption styleOption;
-    styleOption.init(this);
+    
+    styleOption.initFrom(this);
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     style()->drawPrimitive(QStyle::PE_Widget, &styleOption, &painter, this);
@@ -482,11 +475,12 @@ void LaunchyWidget::updateAlternatives(bool resetSelection)
     rect.translate(pos());
 
     // Is there room for the dropdown box?
-    if (rect.y() + rect.height() > qApp->desktop()->height())
+    QScreen* primaryScreen = qApp->primaryScreen();
+    if (rect.y() + rect.height() > primaryScreen->availableGeometry().height())
     {
         // Only move it if there's more space above
         // In both cases, ensure it doesn't spill off the screen
-        if (pos().y() + input->pos().y() > qApp->desktop()->height() / 2)
+        if (pos().y() + input->pos().y() > primaryScreen->availableGeometry().height() / 2)
         {
             rect.moveTop(pos().y() + input->pos().y() - rect.height());
             if (rect.top() < 0)
@@ -494,7 +488,7 @@ void LaunchyWidget::updateAlternatives(bool resetSelection)
         }
         else
         {
-            rect.setBottom(qApp->desktop()->height());
+            rect.setBottom(primaryScreen->availableGeometry().height());
         }
     }
 
@@ -510,11 +504,6 @@ void LaunchyWidget::showAlternatives()
 
     alternatives->show();
     alternatives->setFocus();
-
-#if QT_VERSION < 0x050000
-    qApp->syncX();
-#endif
-
 }
 
 
@@ -992,7 +981,7 @@ void LaunchyWidget::searchOnInput()
 
         // Sort the results by match and usage, then promote any that match previously
         // executed commands
-        qSort(searchResults.begin(), searchResults.end(), CatLessNoPtr);
+        std::sort(searchResults.begin(), searchResults.end(), CatLessNoPtr);
         catalog->promoteRecentlyUsedItems(searchTextLower, searchResults);
 
         // Finally, if the search text looks like a file or directory name,
@@ -1160,7 +1149,8 @@ void LaunchyWidget::loadPosition(QPoint pt)
     // Get the dimensions of the screen containing the new center point
     QRect rect = geometry();
     QPoint newCenter = pt + QPoint(rect.width()/2, rect.height()/2);
-    QRect screen = qApp->desktop()->availableGeometry(newCenter);
+    QScreen* theScreen = qApp->screenAt(newCenter);
+    QRect screen = theScreen->availableGeometry();
 
     // See if the new position is within the screen dimensions, if not pull it inside
     if (newCenter.x() < screen.left())
@@ -1423,7 +1413,7 @@ void LaunchyWidget::applySkin(const QString& name)
             QPixmap border;
             if (border.load(directory + "mask.png"))
             {
-                frame.setMask(border);
+                frame.setMask(QBitmap{ border });                
             }
             if (border.load(directory + "alpha.png"))
             {
@@ -1448,7 +1438,7 @@ void LaunchyWidget::applySkin(const QString& name)
                 // For some reason, w/ compiz setmask won't work
                 // for rectangular areas.  This is due to compiz and
                 // XShapeCombineMask
-                setMask(mask);
+                setMask(QBitmap{ mask });
             }
         }
     }
@@ -1468,7 +1458,7 @@ void LaunchyWidget::applySkin(const QString& name)
     }
 
     int maxIconSize = outputIcon->width();
-    maxIconSize = qMax(maxIconSize, outputIcon->height());
+    maxIconSize = qMax(maxIconSize, outputIcon->height()) * 2;
     platform->setPreferredIconSize(maxIconSize);
 }
 
@@ -1615,10 +1605,6 @@ void LaunchyWidget::showLaunchy(bool noFade)
     input->selectAll();
     input->setFocus();
 
-#if QT_VERSION < 0x050000
-    qApp->syncX();
-#endif
-
     // Let the plugins know
     plugins.showLaunchy();
 }
@@ -1713,11 +1699,7 @@ void fileLogMsgHandler(QtMsgType type, const char *msg)
     if (file == 0)
     {
         // Create a file for appending in the user's temp directory
-#if QT_VERSION >= 0x050000
         QString filename = QDir::toNativeSeparators(QStandardPaths::writableLocation(QStandardPaths::TempLocation)+ "/launchylog.txt");
-#else
-        QString filename = QDir::toNativeSeparators(QDesktopServices::storageLocation(QDesktopServices::TempLocation) + "/launchylog.txt");
-#endif
 
         file = fopen(filename.toUtf8(), "a");
     }
@@ -1753,11 +1735,7 @@ int main(int argc, char *argv[])
     qApp->setQuitOnLastWindowClosed(false);
 
 #if defined(ENABLE_LOG_FILE) || defined(ENABLE_DEBUG_LOG)
-#   if QT_VERSION >= 0x050000
         qInstallMessageHandler(messageOutput);
-#   else
-        qInstallMsgHandler(messageOutput);
-#   endif
 #endif
 
     qDebug() << "APPLICATION START";
@@ -1799,11 +1777,7 @@ int main(int argc, char *argv[])
             else if (arg.compare("log", Qt::CaseInsensitive) == 0)
             {
             #ifdef ENABLE_LOG_FILE
-            #   if QT_VERSION >= 0x050000
-                    qInstallMessageHandler(messageOutput);
-            #   else
-                    qInstallMsgHandler(messageOutput);
-            #   endif
+                qInstallMessageHandler(messageOutput);
             #endif
             }
             else if (arg.compare("profile", Qt::CaseInsensitive) == 0)
@@ -1827,8 +1801,8 @@ int main(int argc, char *argv[])
 
     QString locale = QLocale::system().name();
     QTranslator translator;
-    translator.load(QString("tr/launchy_" + locale));
-    qApp->installTranslator(&translator);
+    if ( translator.load(QString("tr/launchy_" + locale)) )
+        qApp->installTranslator(&translator);
 
     qApp->setStyleSheet("file:///:/resources/basicskin.qss");
 
@@ -1837,11 +1811,7 @@ int main(int argc, char *argv[])
     qApp->exec();
 
 #if defined(ENABLE_LOG_FILE)
-#   if QT_VERSION >= 0x050000
         qInstallMessageHandler(0);
-#   else
-        qInstallMsgHandler(0);
-#   endif
 #endif
 
     delete widget;

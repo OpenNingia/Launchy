@@ -47,7 +47,7 @@ public:
     /** The plugin id of the creator of this CatItem */
     int id;
     /** an hash **/
-    int hash;
+    size_t hash;
 
     CatItem() : usage(0), data(0), id(0), hash(0) {}
 

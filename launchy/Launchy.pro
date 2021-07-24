@@ -5,8 +5,8 @@ SUBDIRS = src \
 
 
 win32 {
-        SUBDIRS += plugins/controly
-        SUBDIRS += plugins/calcy
+        #SUBDIRS += plugins/controly
+        #SUBDIRS += plugins/calcy
 }
 
 TRANSLATIONS = translations/launchy_fr.ts \

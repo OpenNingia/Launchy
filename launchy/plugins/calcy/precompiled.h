@@ -20,24 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef PRECOMPILED_H
 #define PRECOMPILED_H
 
-#ifdef _MSC_VER
-#pragma warning(push,3)
-#endif
-
-#include <QtGui>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
 #include <stdlib.h>
-#include <boost/shared_ptr.hpp>
-
-using namespace boost;
-
-#define BOOST_SPIRIT_USE_OLD_NAMESPACE
-#include <boost/spirit/include/classic_core.hpp>
-#include <boost/spirit/include/classic_attribute.hpp>
-#include <boost/spirit/include/phoenix1_functions.hpp>
+#include <memory>
+#include <vector>
+#include <string>
 
 #endif // PRECOMPILED_H

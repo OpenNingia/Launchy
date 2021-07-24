@@ -20,11 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DROPLISTWIDGET_H
 #define DROPLISTWIDGET_H
 
-#if QT_VERSION >= 0x050000
-#   include <QtWidgets/QListWidget>
-#else
-#   include <QtGui/QListWidget>
-#endif
+#include <QtWidgets/QListWidget>
 
 class DropListWidget : public QListWidget
 {

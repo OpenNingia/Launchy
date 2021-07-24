@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "main.h"
 #include "globals.h"
 
+#include <QRegularExpression>
+
 
 void FileSearch::search(const QString& searchText, QList<CatItem>& searchResults, InputDataList& inputData)
 {
@@ -75,9 +77,10 @@ void FileSearch::search(const QString& searchText, QList<CatItem>& searchResults
 		if (!gSettings->value("GenOps/showNetwork", true).toBool())
 			return;
 
-		// Check for a search against just the network name
-		QRegExp re("//([a-z0-9\\-]+)?$", Qt::CaseInsensitive);
-		if (re.exactMatch(searchPath))
+		// Check for a search against just the network name		
+		QRegularExpression re{ "//([a-z0-9\\-]+)?$", QRegularExpression::CaseInsensitiveOption };
+		
+		if (re.match(searchPath).hasMatch())
 		{
 			// Get a list of devices on the network. This will be filtered and sorted later.
 			platform->getComputers(itemList);
@@ -133,7 +136,7 @@ void FileSearch::search(const QString& searchText, QList<CatItem>& searchResults
 	else if (sort)
 	{
 		// If we're not matching exactly and there's a filename then do a priority sort
-		qSort(searchResults.begin(), searchResults.end(), CatLessNoPtr);
+		std::sort(searchResults.begin(), searchResults.end(), CatLessNoPtr);
 	}
 
 	inputData.last().setLabel(LABEL_FILE);

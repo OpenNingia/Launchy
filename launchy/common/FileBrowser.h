@@ -10,15 +10,9 @@
 #ifndef FILEBROWSER_H
 #define FILEBROWSER_H
 
-#if QT_VERSION >= 0x050000
-#   include <QtWidgets/QLineEdit>
-#   include <QtWidgets/QPushButton>
-#   include <QtWidgets/QWidget>
-#else
-#   include <QtGui/QLineEdit>
-#   include <QtGui/QPushButton>
-#   include <QtGui/QWidget>
-#endif
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QWidget>
 
 class Filename;
 

@@ -4,10 +4,6 @@
 #include "fhoicon.h"
 #include "fhoenv.h"
 
-#if QT_VERSION >= 0x050000
-#   include <QtWinExtras/QtWinExtras>
-#endif
-
 QImage FhoIcon::getIconFromHandle(HICON hIcon) {
 	if (hIcon) {
 

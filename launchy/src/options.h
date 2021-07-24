@@ -66,7 +66,7 @@ private slots:
 private:
 	void addDirectory(const QString& directory, bool edit = false);
 	void loadPluginDialog(QListWidgetItem* item);
-	void connectCatalogBuilderEvents();
+	//void connectCatalogBuilderEvents();
 
 private:
 	FileBrowserDelegate directoryItemDelegate;
@@ -80,7 +80,6 @@ private:
 	QList<QPair<QString, uint> > pluginNames;
 	QVBoxLayout* pluginLayout;
 	QString lastDir;
-    QSignalMapper tabMapper;
 
 	static QByteArray windowGeometry;
 	static int currentTab;

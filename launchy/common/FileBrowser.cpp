@@ -8,23 +8,14 @@
 */
 
 
-#if QT_VERSION >= 0x050000
-#   include <QtWidgets/QApplication>
-#   include <QtWidgets/QCompleter>
-#   include <QtWidgets/QDirModel>
-#   include <QtWidgets/QFileDialog>
-#   include <QtWidgets/QHBoxLayout>
-#   include <QtGui/QBitmap>
-#   include <QtGui/QFocusEvent>
-#else
-#   include <QtGui/QApplication>
-#   include <QtGui/QBitmap>
-#   include <QtGui/QCompleter>
-#   include <QtGui/QDirModel>
-#   include <QtGui/QFileDialog>
-#   include <QtGui/QFocusEvent>
-#   include <QtGui/QHBoxLayout>
-#endif
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QCompleter>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QHBoxLayout>
+#include <QtGui/QBitmap>
+#include <QtGui/QFocusEvent>
+
+#include <QFileSystemModel>
 
 #include "FileBrowser.h"
 
@@ -62,8 +53,11 @@ FileBrowser::FileBrowser(QWidget* pParent) :
 {
 	// Filename edit
 	QCompleter* pCompleter = new QCompleter(this);
-	QDirModel* pDirModel = new QDirModel(QStringList(), QDir::NoDotAndDotDot | QDir::AllDirs | QDir::AllEntries,
-		QDir::Name | QDir::DirsFirst, pCompleter);
+	QFileSystemModel* pDirModel = new QFileSystemModel{ pCompleter };
+	pDirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs | QDir::AllEntries);
+			
+		/*QStringList(), QDir::NoDotAndDotDot | QDir::AllDirs | QDir::AllEntries,
+		QDir::Name | QDir::DirsFirst, pCompleter);*/
 	pCompleter->setModel(pDirModel);
 
 	mpFileEdit = new QLineEdit(this);
@@ -80,7 +74,7 @@ FileBrowser::FileBrowser(QWidget* pParent) :
 
 	// Layout
 	QHBoxLayout* pLayout = new QHBoxLayout(this);
-	pLayout->setMargin(0);
+	
 	pLayout->setSpacing(0);
 	pLayout->addWidget(mpFileEdit, 100);
 	pLayout->addWidget(mpBrowseButton);
@@ -141,7 +135,8 @@ void FileBrowser::setBrowseFileFilters(const QString& filters)
 		// Update the filters in the completer
 		QStringList dirFilters;
 
-		QStringList filterList = mBrowseFilters.split(";;", QString::SkipEmptyParts);
+		QStringList filterList = mBrowseFilters.split(";;", Qt::SkipEmptyParts);
+		
 		if (filterList.empty() == false)
 		{
 			// Remove the All Files filter
@@ -165,7 +160,7 @@ void FileBrowser::setBrowseFileFilters(const QString& filters)
 					int numChars = filter.lastIndexOf(")") - startPos;
 
 					filter = filter.mid(startPos, numChars);
-					dirFilters += filter.split(' ', QString::SkipEmptyParts);
+					dirFilters += filter.split(' ', Qt::SkipEmptyParts);
 				}
 			}
 		}
@@ -173,7 +168,7 @@ void FileBrowser::setBrowseFileFilters(const QString& filters)
 		QCompleter* pCompleter = mpFileEdit->completer();
 		if (pCompleter != NULL)
 		{
-			QDirModel* pDirModel = dynamic_cast<QDirModel*>(pCompleter->model());
+			QFileSystemModel* pDirModel = static_cast<QFileSystemModel*>(pCompleter->model());
 			if (pDirModel != NULL)
 			{
 				pDirModel->setNameFilters(dirFilters);

@@ -25,12 +25,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "plugin_handler.h"
 #include "FileBrowserDelegate.h"
 
-#if QT_VERSION >= 0x050000
-#   include <QtWidgets/QMessageBox>
-#endif
+#include <QObject>
+#include <QtWidgets/QMessageBox>
 
-#define DEF_CONDENSED_VIEW_MODE 2
-
+constexpr int DEF_CONDENSED_VIEW_MODE = 2;
 
 QByteArray OptionsDialog::windowGeometry;
 int OptionsDialog::currentTab;
@@ -236,22 +234,12 @@ OptionsDialog::OptionsDialog(QWidget * parent) :
 
 	needRescan = false;
 
-    // SIGNAL MAP
-    tabMapper.setMapping(btGen,     0);
-    tabMapper.setMapping(btSkins,   1);
-    tabMapper.setMapping(btCatalog, 2);
-    tabMapper.setMapping(btPlugins, 3);
-    tabMapper.setMapping(btAdvanced,4);
-    tabMapper.setMapping(btAbout,   5);
-
-
-    connect(btGen,     SIGNAL(clicked()), &tabMapper, SLOT(map()));
-    connect(btSkins,   SIGNAL(clicked()), &tabMapper, SLOT(map()));
-    connect(btCatalog, SIGNAL(clicked()), &tabMapper, SLOT(map()));
-    connect(btPlugins, SIGNAL(clicked()), &tabMapper, SLOT(map()));
-    connect(btAdvanced,SIGNAL(clicked()), &tabMapper, SLOT(map()));
-    connect(btAbout,   SIGNAL(clicked()), &tabMapper, SLOT(map()));
-    connect(&tabMapper,SIGNAL(mapped(int)), this, SLOT(changeSettingsPage(int)));
+	connect(btGen, &QToolButton::clicked, this, [this]() {tabWidget->setCurrentIndex(0);});
+	connect(btSkins, &QToolButton::clicked, this, [this]() {tabWidget->setCurrentIndex(1); });
+	connect(btCatalog, &QToolButton::clicked, this, [this]() {tabWidget->setCurrentIndex(2); });
+	connect(btPlugins, &QToolButton::clicked, this, [this]() {tabWidget->setCurrentIndex(3); });
+	connect(btAdvanced, &QToolButton::clicked, this, [this]() {tabWidget->setCurrentIndex(4); });
+	connect(btAbout, &QToolButton::clicked, this, [this]() {tabWidget->setCurrentIndex(5); });
 
     // TODO: check for update,
     // won't be visible until check for update procedure works as intended
@@ -385,7 +373,7 @@ void OptionsDialog::reject()
 
 void OptionsDialog::tabChanged(int tab)
 {
-	tab = tab; // Compiler warning
+	Q_UNUSED(tab)
 	// Redraw the current skin (necessary because of dialog resizing issues)
 	if (tabWidget->currentWidget()->objectName() == "Skins")
 	{
@@ -449,9 +437,9 @@ void OptionsDialog::skinChanged(const QString& newSkin)
 		if (pix.hasAlpha())
 			pix.setMask(pix.mask());
 		if (!platform->supportsAlphaBorder() && QFile::exists(directory + "mask_nc.png"))
-			pix.setMask(QPixmap(directory + "mask_nc.png"));
+			pix.setMask(QBitmap{ QPixmap(directory + "mask_nc.png") });
 		else if (QFile::exists(directory + "mask.png"))
-			pix.setMask(QPixmap(directory + "mask.png"));
+			pix.setMask(QBitmap{ QPixmap(directory + "mask.png") });
 
 		if (platform->supportsAlphaBorder())
 		{
