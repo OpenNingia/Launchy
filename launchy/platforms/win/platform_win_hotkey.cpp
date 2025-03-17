@@ -49,23 +49,29 @@ HHOOK keyboardHook;
 HWND widgetWinId;
 UINT mod, key;
 
-
-HINSTANCE GetHInstance()
+HINSTANCE GetHInstance(void)
 {    
     MEMORY_BASIC_INFORMATION mbi;
     TCHAR szModule[MAX_PATH];
 
     SetLastError(ERROR_SUCCESS);
-    if (VirtualQuery(GetHInstance,&mbi,sizeof(mbi)))
+    
+    // Use the address of this function to locate its module
+    if (VirtualQuery((LPCVOID)GetHInstance, &mbi, sizeof(mbi)))
     {
-        if (GetModuleFileName((HINSTANCE)mbi.AllocationBase, szModule, sizeof(szModule)))
+        // Verify we can get the module name
+        if (GetModuleFileName(
+            (HINSTANCE)mbi.AllocationBase, 
+            szModule, 
+            ARRAYSIZE(szModule)))
         {
             return (HINSTANCE)mbi.AllocationBase;
         }
     }
+    
+    // If we get here, something failed
     return NULL;
 }
-
 
 LRESULT CALLBACK KeyboardHookProc(INT nCode, WPARAM wParam, LPARAM lParam)
 {

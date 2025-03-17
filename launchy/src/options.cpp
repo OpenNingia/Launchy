@@ -398,7 +398,7 @@ void OptionsDialog::autoUpdateCheckChanged(int state)
 
 void OptionsDialog::skinChanged(const QString& newSkin)
 {
-	if (newSkin.count() == 0)
+	if (newSkin.length() == 0)
 		return;
 
 	// Find the skin with this name
@@ -437,9 +437,9 @@ void OptionsDialog::skinChanged(const QString& newSkin)
 		if (pix.hasAlpha())
 			pix.setMask(pix.mask());
 		if (!platform->supportsAlphaBorder() && QFile::exists(directory + "mask_nc.png"))
-			pix.setMask(QBitmap{ QPixmap(directory + "mask_nc.png") });
+			pix.setMask(QBitmap::fromPixmap(QPixmap(directory + "mask_nc.png")));
 		else if (QFile::exists(directory + "mask.png"))
-			pix.setMask(QBitmap{ QPixmap(directory + "mask.png") });
+			pix.setMask(QBitmap::fromPixmap(QPixmap(directory + "mask.png")));
 
 		if (platform->supportsAlphaBorder())
 		{

@@ -84,7 +84,7 @@ bool Catalog::save(const QString& filename)
 // Return true if the specified catalog item matches the specified string
 bool Catalog::matches(CatItem* item, const QString& match)
 {
-	int matchLength = match.count();
+	int matchLength = match.length();
 	int curChar = 0;
 
 	foreach(QChar c, item->lowName)
@@ -169,7 +169,7 @@ QString Catalog::decorateText(const QString& text, const QString& match, bool ou
 	if (!gSettings->value("GenOps/decoratetext", false).toBool())
 		return text;
 	QString decoratedText;
-	int matchLength = match.count();
+	int matchLength = match.length();
 	int curChar = 0;
 
 	int index = text.toLower().indexOf(match);
@@ -178,7 +178,7 @@ QString Catalog::decorateText(const QString& text, const QString& match, bool ou
 	else
 		index = 0;
 	bool highlighted = false;
-	for (; index < text.count(); ++index)
+	for (; index < text.length(); ++index)
 	{
 		QChar c = text[index];
 		// prefix based rendering is buggy with lots of underlines limit it to 15
@@ -325,7 +325,7 @@ QList<CatItem*> SlowCatalog::search(const QString& searchText)
 {
 	QList<CatItem*> result;
 
-	if (searchText.count() > 0)
+	if (searchText.length() > 0)
 	{
 		QString lowSearch = searchText.toLower();
 

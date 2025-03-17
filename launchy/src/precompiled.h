@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //#include <sdkddkver.h>
 //#include <windows.h>
-#include <qt_windows.h>
+//#include <qt_windows.h>
 #include <tchar.h>
 #include <string.h>
 #include <shlobj.h>

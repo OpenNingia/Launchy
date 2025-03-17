@@ -101,8 +101,8 @@ bool CatLess(CatItem* a, CatItem* b)
 			return false;
 	}
 
-	int localLen = a->lowName.count();
-	int otherLen = b->lowName.count();
+	int localLen = a->lowName.length();
+	int otherLen = b->lowName.length();
 
 	// Favour shorter item names
 	if (localLen < otherLen)

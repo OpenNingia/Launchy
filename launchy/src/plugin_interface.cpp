@@ -31,24 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QProcessEnvironment>
 
-/*#ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN
-#endif
-
-#ifndef UNICODE
-#define UNICODE
-#endif
-
-#ifndef _WIN32_WINNT
-#   define _WIN32_WINNT 0x0600
-#endif
-
-#ifndef _WIN32_IE
-#    _WIN32_IE 0x0700
-#endif
-
-#include <windows.h>
-#include <shlobj.h>*/
+#include <qt_windows.h>
 
 // This is also defined in WinIconProvider, remove from both locations if 64 bit build is produced
 QString aliasTo64(QString path) 

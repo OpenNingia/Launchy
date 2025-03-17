@@ -47,7 +47,7 @@ void FileSearch::search(const QString& searchText, QList<CatItem>& searchResults
 			QString volumeName;
 			WCHAR volName[MAX_PATH];
 			if (GetVolumeInformation((WCHAR*)info.filePath().utf16(), volName, MAX_PATH, NULL, NULL, NULL, NULL, 0))
-				volumeName = QString::fromUtf16((const ushort*)volName);
+				volumeName = QString::fromUtf16(reinterpret_cast<const char16_t*>(volName));
 			else
 				volumeName = QDir::toNativeSeparators(info.filePath());
 			CatItem item(QDir::toNativeSeparators(info.filePath()), volumeName);

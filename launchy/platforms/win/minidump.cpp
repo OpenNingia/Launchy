@@ -81,7 +81,7 @@ bool MiniDumper::CreateMiniDump(const TCHAR* postfix, struct _EXCEPTION_POINTERS
 			_MINIDUMP_EXCEPTION_INFORMATION ExInfo;
 			ExInfo.ThreadId = GetCurrentThreadId();
 			ExInfo.ExceptionPointers = exceptionInfo;
-			ExInfo.ClientPointers = NULL;
+			ExInfo.ClientPointers = FALSE;
 
 			// write the dump
 			if (pDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, dumpType, &ExInfo, NULL, NULL))

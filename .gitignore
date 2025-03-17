@@ -181,3 +181,6 @@ Makefile
 
 ui_*.h
 build-*
+
+# CMAKE
+CMakeUserPresets.json

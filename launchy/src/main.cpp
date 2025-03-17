@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QStandardPaths>
 #include <QScreen>
 #include <QNetworkProxy>
+#include <QTranslator>
 
 
 #if defined(ENABLE_LOG_FILE)
@@ -310,7 +311,7 @@ void LaunchyWidget::executeStartupCommand(int command)
     if (command & ResetPosition)
     {
         auto screen = qApp->primaryScreen();
-        QRect r = geometry();               
+        QRect r = geometry();
         QRect scr = screen->availableGeometry();
 
         QPoint pt(scr.width()/2 - r.width()/2, scr.height()/2 - r.height()/2);
@@ -342,7 +343,7 @@ void LaunchyWidget::paintEvent(QPaintEvent* event)
 {
     // Do the default draw first to render any background specified in the stylesheet
     QStyleOption styleOption;
-    
+
     styleOption.initFrom(this);
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -1214,10 +1215,10 @@ void LaunchyWidget::onHotkey()
 
 
 void LaunchyWidget::closeEvent(QCloseEvent* event)
-{    
+{
     qDebug() << "Removing hotkeys registration";
     platform->freeHotkeys();
-    
+
     qDebug() << "Stopping fader timer";
     fader->stop();
 
@@ -1413,7 +1414,7 @@ void LaunchyWidget::applySkin(const QString& name)
             QPixmap border;
             if (border.load(directory + "mask.png"))
             {
-                frame.setMask(QBitmap{ border });                
+                frame.setMask(QBitmap::fromPixmap(border));
             }
             if (border.load(directory + "alpha.png"))
             {
@@ -1438,7 +1439,7 @@ void LaunchyWidget::applySkin(const QString& name)
                 // For some reason, w/ compiz setmask won't work
                 // for rectangular areas.  This is due to compiz and
                 // XShapeCombineMask
-                setMask(QBitmap{ mask });
+                setMask(QBitmap::fromPixmap(mask));
             }
         }
     }
@@ -1470,7 +1471,7 @@ void LaunchyWidget::mousePressEvent(QMouseEvent *e)
         if (gSettings->value("GenOps/dragmode", 0).toInt() == 0 || (e->modifiers() & Qt::ShiftModifier))
         {
             dragging = true;
-            dragStartPoint = e->pos();
+            dragStartPoint = e->position();
         }
     }
     hideAlternatives();
@@ -1483,8 +1484,8 @@ void LaunchyWidget::mouseMoveEvent(QMouseEvent *e)
 {
     if (e->buttons() == Qt::LeftButton && dragging)
     {
-        QPoint p = e->globalPos() - dragStartPoint;
-        move(p);
+        auto p = e->globalPosition() - dragStartPoint;
+        move(p.toPoint());
         hideAlternatives();
         input->setFocus();
     }
@@ -1800,9 +1801,20 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("Launchy");
 
     QString locale = QLocale::system().name();
+    if (qEnvironmentVariableIsSet("LAUNCHY_LOCALE")) {
+        locale = qEnvironmentVariable("LAUNCHY_LOCALE");
+    }
+
+    qDebug() << "Detected locale: " << locale;
+
     QTranslator translator;
-    if ( translator.load(QString("tr/launchy_" + locale)) )
+    //QString translationFile(":/i18n/../../launchy_" + locale);
+    if (translator.load(QLocale(locale), "launchy", "_", ":/i18n") ) {
         qApp->installTranslator(&translator);
+        qDebug() << "Installed translator for locale: " << locale;
+    } else {
+        qWarning() << "Failed to install translator for locale: " << locale;
+    }
 
     qApp->setStyleSheet("file:///:/resources/basicskin.qss");
 
@@ -1818,5 +1830,5 @@ int main(int argc, char *argv[])
     widget = NULL;
 
     delete platform;
-    platform = NULL;    
+    platform = NULL;
 }

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-
+#pragma comment(lib, "Netapi32.lib")
 #include "precompiled.h"
 #include "platform_win.h"
 #include "globals.h"
@@ -98,7 +98,7 @@ bool EnumerateNetworkServers(QStringList& items, DWORD serverType, const wchar_t
 	{
 		for (DWORD i = 0; i < read; ++i)
 		{
-			QString name = QString::fromUtf16((ushort*)serverInfo[i].sv100_name);
+			QString name = QString::fromUtf16(reinterpret_cast<const char16_t*>(serverInfo[i].sv100_name));
 			items.push_back(name);
 		}
 	}
@@ -126,7 +126,7 @@ bool GetNetDomain(QString & domain)
 
 	if (result == NERR_Success && info &&
 		SUCCEEDED(StringCchCopy(domain_name, ARRAYSIZE(domain_name), info->wki100_langroup))) {
-		domain = QString::fromUtf16((ushort*)domain_name);
+		domain = QString::fromUtf16(reinterpret_cast<const char16_t*>(domain_name));
 		return true;
 	}
 

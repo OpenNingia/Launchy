@@ -166,7 +166,7 @@ private:
     CommandHistory history;
     bool alwaysShowLaunchy;
     bool dragging;
-    QPoint dragStartPoint;
+    QPointF dragStartPoint;
     bool menuOpen;
     bool optionsOpen;
 

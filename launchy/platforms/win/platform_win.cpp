@@ -176,7 +176,7 @@ QString PlatformWin::expandEnvironmentVars(QString txt)
 	{
 		TCHAR* buffer = new TCHAR[size];
 		ExpandEnvironmentStrings((LPCWSTR)txt.utf16(), buffer, size);
-		result = QString::fromUtf16((const ushort*)buffer);
+		result = QString::fromUtf16(reinterpret_cast<const char16_t*>(buffer));
 		delete[] buffer;
 	}
 
