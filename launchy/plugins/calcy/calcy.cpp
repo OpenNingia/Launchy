@@ -19,7 +19,8 @@
 
 #include "precompiled.h"
 #include "calcy.h"
-
+#include <boost/spirit.hpp>
+#include <QClipboard>
 
 using namespace boost::spirit;
 using namespace phoenix;
@@ -46,7 +47,7 @@ struct pow_
 
 
 //  Notice how power(x, y) is lazily implemented using Phoenix function.
-function<pow_> power;
+// function<pow_> power;
 
 
 struct calculator : public grammar<calculator, calc_closure::context_t>
@@ -154,7 +155,7 @@ void calcyPlugin::getLabels(QList<InputData>* id)
 		return;
 
 	QString text = id->last().getText().replace(" ", "");
-	if (reg.indexIn(text) == 0)
+	if (reg.match(text).hasMatch())
 	{
 		id->last().setLabel(HASH_CALCY);
 	}

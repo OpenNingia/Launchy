@@ -4,6 +4,8 @@ project(launchy VERSION 3.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(BUILD_PLUGINS "Build Plugins" ON)
+
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
 find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
 
